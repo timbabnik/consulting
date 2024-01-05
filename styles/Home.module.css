@@ -108,10 +108,207 @@
   margin-left: 0.5rem;
 }
 
+.mainmain {
+ justify-content: center;
+ align-items: center;
+ max-width: 1200px;
+ margin-top: 150px;
+ display: flex;
+ flex-direction: column;
+ background-color: #111729;
+}
+
+.intro {
+  
+  max-width: 2000px;
+  margin-top: 0px;
+  display: flex;
+  
+ }
+
+ .introo {
+  
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 1600px;
+  margin-top: 0px;
+  display: flex;
+  justify-content: center;
+ }
+
+
+ .modaloverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent dark overlay */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalcontent {
+  background-color: #111729; /* Set the background color of your modal */
+  height: 800px;
+  width: 580px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Optional: Add a box shadow for a raised effect */
+}
+
+.modalcontentTwo {
+  background-color: #111729; /* Set the background color of your modal */
+  height: 550px;
+  width: 500px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Optional: Add a box shadow for a raised effect */
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.modalcontentThree {
+  background-color: #111729; /* Set the background color of your modal */
+  height: 400px;
+  width: 580px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Optional: Add a box shadow for a raised effect */
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.postss {
+  height: 100%;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  padding-top: 0px;
+  justify-content: center;
+  background-color: #111729;
+}   
+
+
+.postsss {
+  flex-direction: column;
+  height: 100%;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  padding-top: 0px;
+  justify-content: center;
+  background-color: #111729;
+} 
+
+.mainUp {
+  width: 100%;
+  background-color: #111729;
+  height: 75px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  border-bottom: 1px solid rgb(32, 41, 58);
+}
+
+.acc {
+  height: 100vh;
+  width: 100%;
+  
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.accPost {
+  transition: background-color 0.3s ease, width 0.3s ease;
+
+  width: 80%;
+  
+  border-radius: 20px;
+  display: flex;
+  
+  padding-left: 0px;
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid rgb(32, 41, 58);
+}
+
+.accPostTwo {
+  
+
+  width: 80%;
+  
+  border-radius: 20px;
+  display: flex;
+  
+  padding-left: 0px;
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid rgb(32, 41, 58);
+}
+
+.accPost:hover {
+  background-color: #151e35;
+  width: 80%;
+  cursor: pointer;
+  border-radius: 20px;
+  display: flex;
+  padding-left: 0px;
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid rgb(32, 41, 58);
+}
+
+
+.accText {
+  padding: 10px;
+  font-size: small;
+  color: #c3cee0
+}
+
+
+.postsTwo {
+  background-color: #101629;
+  border-right: 1px solid rgb(32, 41, 58);
+  height: 100%;
+  display: flex;
+  width: 30%;
+  flex-direction: column;
+  overflow: scroll;
+  align-items: center;
+}  
+
+
+.backgroundForm {
+  background-color: #090B14;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.form {
+  height: 100%;
+  width: 800px;
+  background-color: #121728;
+  margin-top: 100px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  padding: 60px;
+  
+}
+
 @media (max-width: 600px) {
   .grid {
     width: 100%;
     flex-direction: column;
+  }
+
+  .postsTwo {
+    display: none;
   }
 }
 
