@@ -4,7 +4,7 @@ function Consult({description, info, address, color}) {
   return (
     <div className="relative">
     <div className="mt-16 border border-[#1e294d] h-80 w-80 rounded-lg mx-4 overflow-hidden relative">
-        <div className="p-3 border-b border-[#1e294d] w-full">{description}</div>
+        <div className="p-3 border-b border-[#1e294d] w-full text-white">{description}</div>
         <p className="p-3 text-md text-[#c3cee0] text-sm">
             {info.length > 300 ? `${info.substring(0, 300)}...` : info}
         </p>

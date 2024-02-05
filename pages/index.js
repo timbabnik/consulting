@@ -74,7 +74,7 @@ export default function Home() {
     <div className="flex justify-between w-full">
       <div className="flex items-center m-5">
         <img src="https://i.postimg.cc/05z87KKh/1p-If-Jv-Logo-Makr.png" className="h-12" />
-        <p className="ml-2 text-xl text-[#62baf1]">Conschain</p>
+        <p className="ml-2 text-xl text-[#62baf1]">Tancy</p>
       </div>
       <div className="flex items-center">
       <p class="hidden md:block text-sm text-[#dde0e6] mr-6 hover:text-[#aebcdb] cursor-not-allowed">Become a consultant</p>
@@ -85,10 +85,10 @@ export default function Home() {
     <div className={styles.mainmain}>
       <div className="flex flex-col justify-center items-center">
         <span className="inline-block bg-[#1a273e] px-3 py-2 rounded-full">
-          <p className="text-[#62baf1] text-sm ">Decentralized management consultancy</p>
+          <p className="text-[#62baf1] text-sm ">Decentralized marketing consultancy</p>
         </span>
-        <p className="md:text-5xl text-3xl xs:text-2xl w-full font-bold text-center mt-4 lg:text-7xl">Create your own consultancy and research team</p>
-        <p className="text-[#98a2b6] md:text-xl text-md mt-4 w-2/3 text-center">Create your own hybrid consultancy team between your audience and professional consultants.</p>
+        <p className="md:text-5xl text-3xl xs:text-2xl w-full font-bold text-center mt-4 lg:text-7xl text-white">Create your own marketing and research team</p>
+        <p className="text-[#98a2b6] md:text-xl text-md mt-4 w-2/3 text-center">Let your next marketing campaign be effortless and successful</p>
       </div>
       <Link href="/account"><div className="bg-[#51b0eb] p-3 rounded-lg text-md w-32 justify-center items-center flex mt-10 cursor-pointer hover:bg-[#3c9bd6]">Get started</div></Link>
       <img src="https://i.postimg.cc/m2fRmFyn/undraw-Lives-matter-38lv-removebg-preview.png" className="mt-10 mb-10" />
@@ -101,8 +101,8 @@ export default function Home() {
     <div className="flex flex-wrap mt-20 mb-32 justify-center">
       <div className="bg-[#20293A] p-8 rounded-lg mx-5 w-80 mt-10">
         <img src="https://i.postimg.cc/05z87KKh/1p-If-Jv-Logo-Makr.png" className="h-12" />
-        <p className="text-[#fff] text-xl font-bold mt-4">Explain your problem</p>
-        <p className="text-[#c3cee0] text-sm mt-4">Describe your problem and what kind of a help you need - Ideas, Research, Technology.</p>
+        <p className="text-[#fff] text-xl font-bold mt-4">Explain your situation</p>
+        <p className="text-[#c3cee0] text-sm mt-4">Describe your platform, what you need (research, ideas, ...) and what are the goals of a campaign.</p>
        
         
       </div>
@@ -116,13 +116,13 @@ export default function Home() {
       <div className="bg-[#20293A] p-6 rounded-lg mx-5 mt-10 w-80">
         <img src="https://i.postimg.cc/sx7qwzrG/3i-Eo3-T-Logo-Makr.png" className="h-12" />
         <p className="text-[#fff] text-xl font-bold mt-4">Create your team</p>
-        <p className="text-[#c3cee0] text-sm mt-4">Add individuals who provided insightful answers and whom you'd like to collaborate with to your group chat. Allow them to contribute to problem-solving.</p>
+        <p className="text-[#c3cee0] text-sm mt-4">Add individuals who provided insightful answers and whom you&apos;d like to collaborate with to your group chat. Allow them to contribute to achieve your goal.</p>
       </div>
     </div>
   </div>
 </div>
 <div className="bg-[#0e1429] w-full items-center flex flex-col pb-36">
-<p className="mt-20 text-4xl font-bold">Become a consultant</p>
+<p className="mt-20 text-4xl font-bold text-white">Become a consultant</p>
 <div className="flex items-center">
 <div className={styles.introo}>
   {allConsulting.map((data, index) => (

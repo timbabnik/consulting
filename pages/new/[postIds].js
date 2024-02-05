@@ -79,7 +79,7 @@ function New() {
 
     // Copy postIds to the clipboard
     if (postIds) {
-      navigator.clipboard.writeText(postIds)
+      navigator.clipboard.writeText(`http://tancy.xyz/new/${postIds}`)
         .then(() => {
           console.log('postIds copied to clipboard:', postIds);
         })
@@ -104,7 +104,7 @@ function New() {
               <div onClick={(e) => e.stopPropagation() /* prevent closing when clicking on the content */}>
                 <div className="flex w-full flex-col px-10 justify-center items-center">
                   <img src="https://i.postimg.cc/NMBDktW9/6t1-O4g-Logo-Makr.png" className="w-32" />
-                  <p className="text-center w-2/3 mt-8 text-[#3f5780]">Successful send. Go back to your account and check if you have a group.</p>
+                  <p className="text-center w-2/3 mt-8 text-[#3f5780]">Successful send. Please return to your account and check if you have a group.</p>
                   <Link href="/account"><div onClick={() => setModalVisible(false)} className="mt-6 bg-blue-700 p-3 rounded-lg text-sm hover:bg-blue-600 cursor-pointer">Back to account</div></Link>
                 </div>
               </div>
@@ -129,28 +129,35 @@ function New() {
               )
             }
             
-            <h1 className="mt-10 font-bold text-4xl">{getInfo.reward} eth/month</h1>
-            <p className="text-[#A2ADC2] mt-5">{getInfo.desc}</p>
+            <h1 className="mt-10 font-bold text-4xl mb-4">{getInfo.reward} ETH</h1>
+            <a href={`${getInfo.link}`} className="text-[#5f90eb] underline">{getInfo.link}</a>
+            <p className="text-[#A2ADC2] mt-5">{getInfo.goal}</p>
             <div className="flex items-center mt-5">
             {
-                  getInfo.sub ? (
-                    <div className="text-[#E93378] border-[#E93378] border p-2 px-5 rounded-full text-sm">{getInfo.type}</div>
+                  getInfo.resarch && (
+                    <div className="text-[#E93378] border-[#E93378] border p-2 px-5 rounded-full text-sm mr-4">Research</div>
+                  ) 
+                }
+                
+                {
+                  getInfo.ideas ? (
+                    <div className="text-[#3387E9] border-[#3387E9] border p-2 px-5 rounded-full mr-4 text-sm">Ideas</div>
                   ) : (
                     null
                   )
                 }
-                
-                {
-                  getInfo.sub ? (
-                    <div className="text-[#3387E9] border-[#3387E9] border p-2 px-5 rounded-full ml-4 text-sm">{getInfo.sub}</div>
+
+{
+                  getInfo.content ? (
+                    <div className="text-[#33a6e9] border-[#33a6e9] border p-2 px-5 rounded-full text-sm">Content</div>
                   ) : (
                     null
                   )
                 }
             </div>
             <div className="border-[#212B4D] border mt-10 w-full h-0"></div>
-            <h1 className="mt-10 font-bold text-3xl">JOIN A CONSULTING TEAM</h1>
-            <p className="text-[#A2ADC2] mt-5">Bla afsdfas dasdfasdfas asdfasidfjasi djfasdfasd fasdfja sid</p>
+            <h1 className="mt-10 font-bold text-3xl">JOIN A MARKETING TEAM</h1>
+            <p className="text-[#A2ADC2] mt-5">Write your thoughts/opinions/ideas on how you could help {getInfo.link} to achieve their goals. If they find it helpful they can add you to their group chat where you will work together and earn money.</p>
             <textarea
                   onChange={(e) => setInput(e.target.value)} 
                   value={input}

@@ -1,5 +1,5 @@
 
-import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, query, serverTimestamp, orderBy } from '@firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, query, serverTimestamp, orderBy, getDoc } from '@firebase/firestore';
 import Link from 'next/link';
 import React, { useEffect, useRef, useState } from 'react'
 import Comment from "../components/Comment"
@@ -7,7 +7,7 @@ import Pro from '../components/Pro';
 import { db } from '../firebase';
 import styles from '../styles/Home.module.css'
 
-function account() {
+function Account() {
     const [modalVisible, setModalVisible] = useState(false);
     const [modalVisibleTwo, setModalVisibleTwo] = useState(false);
     const [modalVisibleThree, setModalVisibleThree] = useState(false);
@@ -45,6 +45,18 @@ function account() {
     const [whatColor, setWhatColor] = useState("white");
 
     const [numberPrice, setNumberPrice] = useState("");
+
+
+    const [research, setResearch] = useState(false);
+    const [ideas, setIdeas] = useState(false);
+    const [content, setContent] = useState(false);
+
+    const [link, setLink] = useState("");
+    const [shortDesc, setShortDesc] = useState("");
+
+    const [info, setInfo] = useState(true);
+
+    const [trueOwner, setTrueOwner] = useState(false);
     
 
     const pos = []
@@ -126,7 +138,7 @@ function account() {
     
 
 
-    const categories = ["Research", "Ideas", "Technology"];
+    const categories = ["Research", "Ideas", "Content"];
 
     const messageClass = "bg-blue-500 text-white rounded-lg p-2 max-w-md self-end"
 
@@ -141,7 +153,8 @@ function account() {
 
       addDoc(collection(db, "accounts", accounts[0], "myGroups"), {
         name: id,
-        groupId: docId
+        groupId: docId,
+        owner: accounts[0]
       });
 
       addDoc(collection(db, "accounts", id, "myGroups"), {
@@ -194,7 +207,10 @@ function account() {
       const firstDocRef = await addDoc(collection(db, "accounts", id, "myGroups"), {
         name: id,
         groupId: getMyGroupOne[0].data.groupId,
-        color: randomColor
+        color: randomColor,
+        group: true,
+        id: getMyGroupOne[0].data.id,
+        link: getMyGroupOne[0].data.link
       });
 
       const groupId = firstDocRef.id;
@@ -316,11 +332,14 @@ function account() {
 
 
       const docTwo = await addDoc(collection(db, "consultingTeam"), {
-        type: selected,
-        sub: selectedTwo,
-        description: input,
+        link: link,
+        shortDescription: shortDesc,
+        goal: input,
         owner: accounts[0],
-        reward: numberPrice
+        reward: numberPrice,
+        resarch: research,
+        ideas: ideas,
+        content: content
       });
 
       const docIdTwo = docTwo.id;
@@ -331,7 +350,8 @@ function account() {
         description: input,
         groupId: docId,
         owner: accounts[0],
-        id: docIdTwo
+        id: docIdTwo,
+        link: link,
       });
 
 
@@ -339,6 +359,9 @@ function account() {
 
       setModalVisible(false);
     }
+
+    const [groupId, setGroupId] = useState("");
+    const [linkId, setLinkId] = useState("");
 
 
     useEffect(() => {
@@ -348,10 +371,25 @@ function account() {
           id: doc.id,
           data: doc.data(),
         }));
+
+        const snapshotTwo = await getDocs(collection(db, "accounts", accounts[0], "myGroups"));
+        const dataTwo = snapshotTwo.docs.map((doc) => ({
+          id: doc.id,
+          data: doc.data(),
+        }));
     
         if (data.length > 0) {
           setGetId(data);
           setSelectedGroup(data[0].data.groupId);
+          setGroupId(data[0].data.id);
+          
+        } else if (data.length == 0 && dataTwo.length > 0) {
+          setLinkId(dataTwo[0].data.link);
+          setGetId(dataTwo);
+          setSelectedGroup(dataTwo[0].data.groupId);
+          setSelectColor(dataTwo[0].data.color);
+          setGroupId(dataTwo[0].data.id);
+          
         }
       };
     
@@ -378,6 +416,24 @@ function account() {
           });
          
         }
+
+        console.log(groupId, "timo");
+
+        if (groupId && linkId) {
+          const docRef = doc(db, "consultingTeam", groupId);
+          const docSnap = await getDoc(docRef);
+    
+          if (docSnap.exists()) {
+            setInfo(false);
+            console.log("Document data:", docSnap.data());
+            setProjectInfo(docSnap.data());
+          } else {
+            setInfo(true);
+          }
+        }
+        
+
+        
       };
 
       
@@ -385,10 +441,13 @@ function account() {
       fetchDataTwo();
 
       
-    }, [getId, refresh, selectedGroup]);
+    }, [getId, refresh]);
 
 
-    const fetchDataTwo = async (id, color) => {
+    const [projectInfo, setProjectInfo] = useState([]);
+
+
+    const fetchDataTwo = async (id, color, link, idd, name) => {
       const querySnapshot = await getDocs(
         query(collection(db, "allChats", id, "messages"), orderBy("timestamp"))
       );
@@ -402,6 +461,25 @@ function account() {
     
       setSelectedGroup(id);
       setSelectColor(color);
+      console.log(name, accounts[0])
+      if (name && accounts && name.toUpperCase() === accounts[0].toUpperCase()) {
+        setTrueOwner(true);
+      } else {
+        setTrueOwner(false);
+      }
+
+      if (link) {
+        setInfo(false);
+        const docRef = doc(db, "consultingTeam", idd);
+            const docSnap = await getDoc(docRef);
+    
+            if (docSnap.exists()) {
+              console.log("Document data:", docSnap.data());
+              setProjectInfo(docSnap.data());
+            }
+      } else {
+        setInfo(true);
+      }
     };
     
 
@@ -526,52 +604,30 @@ let prevTimestamp = 0;
             <div className={styles.modalcontent}>
               <div onClick={(e) => e.stopPropagation() /* prevent closing when clicking on the content */}>
                 <div className="flex w-full flex-col px-10">
-                <div className="mt-10 text-sm text-blue-500 font-light">Overview</div>
-                <div className="mt-4 text-xl font-bold">Choose your type</div>
-                <div className="flex items-center w-72 justify-between mt-5">
-                    {
-                        categories.map((data, index) => {
-                            return <div onClick={() => chooseSelect(data)} key={index} className={`${selected == data ? "text-[#fff" : "text-[#3c9bd6]"} border ${selected == data ? "bg-[#3c9bd6]" : null} border-[#3c9bd6] cursor-pointer hover:text-white p-2 px-4 rounded-md text-xs`}>{data}</div>
-                        })
-                    }
-                   
-                 
+               
+                
+               
+              
+                
+                <div className="mt-0 text-xl font-bold">What you need help with</div>
+               
+                <div className="flex items-center w-64 justify-between mt-5">
+                    
+                   <div onClick={() => setResearch(!research)} className={`${research ? "text-[#fff" : "text-[#3c9bd6]"} border ${research ? "bg-[#3c9bd6]" : null} border-[#3c9bd6] cursor-pointer hover:text-white p-2 px-4 rounded-md text-xs`}>Research</div>
+                   <div onClick={() => setIdeas(!ideas)} className={`${ideas ? "text-[#fff" : "text-[#3c9bd6]"} border ${ideas ? "bg-[#3c9bd6]" : null} border-[#3c9bd6] cursor-pointer hover:text-white p-2 px-4 rounded-md text-xs`}>Ideas</div>
+                   <div onClick={() => setContent(!content)} className={`${content ? "text-[#fff" : "text-[#3c9bd6]"} border ${content ? "bg-[#3c9bd6]" : null} border-[#3c9bd6] cursor-pointer hover:text-white p-2 px-4 rounded-md text-xs`}>Content</div>
+
                 </div>
-                <input onChange={(e) => setSelected(e.target.value)} value={selected} placeholder="Your type ..." className=" mt-6 h-10 text-sm pl-2 rounded-md border border-[#1e294d] bg-blue-950"></input>
-                {
-                  selected == "Research" ? (
-                    <div className="flex items-center mt-4">
-                    {
-                      researchAll.map((data,index) => {
-                        return <div onClick={() => setSelectedTwo(data)} key={index} className={`border-blue-800 ${selectedTwo == data ? "bg-blue-800" : null} ${selectedTwo == data ? "text-white" : "text-blue-800"}   border-2 p-2 px-4 rounded-full mx-1  text-sm cursor-pointer`}><p>{data}</p></div>
-                      })
-                    }
-                    </div>
-                  ) : selected == "Ideas" ? (
-                    <div className="flex items-center mt-4">
-                    {
-                      ideasAll.map((data,index) => {
-                        return <div onClick={() => setSelectedTwo(data)} key={index} className={`border-blue-800 ${selectedTwo == data ? "bg-blue-800" : null} ${selectedTwo == data ? "text-white" : "text-blue-800"}   border-2 p-2 px-4 rounded-full mx-1  text-sm cursor-pointer`}><p>{data}</p></div>
-                      })
-                    }
-                    </div>
-                  ) : selected == "Technology" ? (
-                    <div className="flex items-center mt-4">
-                    {
-                      technologyAll.map((data,index) => {
-                        return <div onClick={() => setSelectedTwo(data)} key={index} className={`border-blue-800 ${selectedTwo == data ? "bg-blue-800" : null} ${selectedTwo == data ? "text-white" : "text-blue-800"}   border-2 p-2 px-4 rounded-full mx-1  text-sm cursor-pointer`}><p>{data}</p></div>
-                      })
-                    }
-                    </div>
-                  ) : null
-                }
-                <div className="mt-12 text-xl font-bold">Reward</div>
+                <div className="mt-10 text-xl font-bold">Reward</div>
                 <input type="number" onChange={(e) => setNumberPrice(e.target.value)} value={numberPrice} placeholder="0.1 eth" className=" mt-6 h-10 text-sm pl-2 rounded-md border border-[#1e294d] bg-blue-950"></input>
-                <div className="mt-12 text-xl font-bold">Describe</div>
+                <div className="mt-10 text-xl font-bold">Campaign description</div>
+                <p className="mt-6 text-sm text-[#6175cc]">Your project:</p>
+                <input  onChange={(e) => setLink(e.target.value)} value={link} placeholder="Link" className=" mt-2 h-10 text-sm pl-2 rounded-md border border-[#1e294d] bg-blue-950"></input>
+                <p className="mt-6 text-sm text-[#6175cc]">Describe your platform and what goals you want to achieve with this marketing campaign (example: onboard 10 new people on your app)</p>
                 <textarea
                   onChange={(e) => setInput(e.target.value)} 
                   value={input}
-                  placeholder="Describe what you want"
+                  placeholder="Describe your campaign goals ..."
                   className="mt-6 h-40 text-sm pl-2 rounded-md border border-[#1e294d] bg-blue-950 pt-2 resize-none"
                 ></textarea>
                 
@@ -671,7 +727,7 @@ let prevTimestamp = 0;
                    {
                      getMyGroupOne.length == 0 ? (
                         <div onClick={() => setModalVisible(true)} className="flex cursor-pointer bg-[#086fac] p-2 rounded-xl hover:bg-[#254149] mr-4">
-                            <p className="text-white text-md px-3 py-1">Create a new team</p>
+                            <p className="text-white text-md px-3 py-1">Create a new campaign</p>
                         </div>
                      ) : (
                        <Link href={{ pathname: `/new/${getMyGroupOne[0].data.id}`, query: { specialParam: true } }}>
@@ -694,7 +750,7 @@ let prevTimestamp = 0;
             getMyGroupOne.length == 0 && getMyGroup.length == 0 ? (
                 <div className={styles.postsss}>
                     <img src="https://i.postimg.cc/cHgkvZz1/undraw-writer-q06d-removebg-preview.png" className="h-64 mt-0" />
-                    <p className="text-[#2f3f5c]">Connect and create your own consulting team.</p>
+                    <p className="text-[#2f3f5c]">Connect and create your own marketing team.</p>
                 </div>
             ) : (
                 <div className={styles.postss}>
@@ -704,30 +760,32 @@ let prevTimestamp = 0;
                 <p className={`"text-[#46606B]"} mr-7 font-bold text-xl hover:cursor-pointer mt-2`}></p>
             </div>
             <div className="w-full items-center flex flex-col h-full">
-              <div className="flex items-center">
-              <p onClick={() => setHelp("Your audience")} className={`mx-4 ${help == "Your audience" ? "text-blue-500" : "text-[#2c3f6e]"} ${help == "Your audience" ? "border-blue-500" : "border-[#111729]"}   border-b cursor-pointer ${help == "Your audience" ? "hover:text-blue-500" : "hover:text-[#3c5699]"} `}>Your audience</p>
-              <p onClick={() => setHelp("Consultant")} className={`mx-4 ${help == "Consultant" ? "text-blue-500" : "text-[#2c3f6e]"} ${help == "Consultant" ? "border-blue-500" : "border-[#111729]"}   border-b cursor-pointer ${help == "Consultant" ? "hover:text-blue-500" : "hover:text-[#3c5699]"}`}>Consultant</p>
-              </div>
+              
 
               {
-                help == "Your audience" ? (
+                info ? (
                   <>
+                  <div className="flex items-center">
+              <p onClick={() => setHelp("Your audience")} className={`mx-4 ${help == "Your audience" ? "text-blue-500" : "text-[#2c3f6e]"} ${help == "Your audience" ? "border-blue-500" : "border-[#111729]"}   border-b cursor-pointer ${help == "Your audience" ? "hover:text-blue-500" : "hover:text-[#3c5699]"} `}>Campaign ideas</p>
+              {/*<p onClick={() => setHelp("Consultant")} className={`mx-4 ${help == "Consultant" ? "text-blue-500" : "text-[#2c3f6e]"} ${help == "Consultant" ? "border-blue-500" : "border-[#111729]"}   border-b cursor-pointer ${help == "Consultant" ? "hover:text-blue-500" : "hover:text-[#3c5699]"}`}>Consultant</p>*/}
+              </div>
                   {
                     getPotential == 0 ? (
                       <div className="h-full w-full flex justify-center items-center">
                         {
                           getMyGroupOne == 0 ? (
-                            <div className="flex items-center justify-center">
+                            <div className="flex items-center justify-center flex-col">
                               <img src="https://i.postimg.cc/FRQ4NYwf/undraw-undraw-undraw-undraw-team-effort-yj7m-ej3u-wvay-fl4f-removebg-preview.png" className="w-32" />
                               <p className="text-center text-[#2f3f5c] mt-4">Create your group</p>
-                              <div onClick={() => setModalVisible(true)} className="flex cursor-pointer bg-[#2f3f5c] p-2 rounded-xl hover:bg-[#254149] mr-4">
-                                  <p className="text-[#2f3f5c] text-md px-3 py-1">Click</p>
+                              <div onClick={() => setModalVisible(true)} className="flex cursor-pointer border mt-4 border-[#2f3f5c] p-2 rounded-lg hover:bg-[#6585be] mr-0">
+                                  <p className="text-[#2f3f5c] text-md px-4 py-0">Click</p>
                               </div>
                             </div>
+                          
                           ) : (
                             <div className="flex items-center justify-center flex-col">
                               <img src="https://i.postimg.cc/QMRS95qb/undraw-In-love-6sq2-2-removebg-preview.png" className="w-48" />
-                              <div className="text-center text-[#2f3f5c] mt-4">Get help from your audience</div>
+                              <div className="text-center text-[#2f3f5c] mt-4 px-2">Our consultants are writing ideas for your campaign. Come back later or invite your audience to help you</div>
                               <Link href={{ pathname: `/new/${getMyGroupOne[0].data.id}`, query: { specialParam: true } }}>
                               <div className="flex cursor-pointer mt-4 border-[#2f3f5c] border p-2 rounded-lg hover:bg-[#4e7dc4] mr-0">
                                   <p className="text-[#2f3f5c] text-md px-2 text-sm">Click</p>
@@ -758,11 +816,42 @@ let prevTimestamp = 0;
                         }
                   </>
                 ) : (
-                  <div>fsdf</div>
+                  <div className="w-full px-4">
+                    <p className="text-blue-300 font-bold text-lg">Project name:</p>
+                    <a href={`http://${projectInfo.link}`} className="text-gray-300 text-sm mt-1 underline">{projectInfo.link}</a>
+                    <p className="text-blue-300 font-bold text-lg mt-8 ">Reward:</p>
+                    <p className="text-gray-300 text-sm mt-1">{projectInfo.reward} eth</p>
+                    <p className="text-blue-300 font-bold text-lg mt-8">Description & Goals</p>
+                    <p className="border-b pb-6 border-[#253149] text-gray-300 text-sm mt-1">{projectInfo.goal}</p>
+                    <div className="flex items-center mt-5 flex-wrap">
+            {
+                  projectInfo.resarch && (
+                    <div className="text-[#E93378] mb-3 border-[#E93378] border p-2 px-5 rounded-full text-sm mr-4">Research</div>
+                  ) 
+                }
+                
+                {
+                  projectInfo.ideas ? (
+                    <div className="text-[#3387E9] mb-3 border-[#3387E9] border p-2 px-5 rounded-full mr-4 text-sm">Ideas</div>
+                  ) : (
+                    null
+                  )
+                }
+
+{
+                  projectInfo.content ? (
+                    <div className="text-[#33a6e9] mb-3 border-[#33a6e9] border p-2 px-5 rounded-full text-sm">Content</div>
+                  ) : (
+                    null
+                  )
+                }
+            </div>
+                  </div>
                 )
               }
-             
-           
+              <Link href="/">
+             <img src="https://i.postimg.cc/GmsPsTVc/2szn-KA-Logo-Makr.png" className="absolute left-3 bottom-3 h-8"/>
+              </Link>
                 </div>
             </div>
             <div className="w-full bg-[#111729] h-full flex flex-col justify-center items-center">
@@ -797,15 +886,37 @@ let prevTimestamp = 0;
 
 {/* Render the rest of the groups */}
 
-      {
-        getMyGroup.map((data, index) => {
-          return <div onClick={() => fetchDataTwo(data.data.groupId, data.data.color)} key={index} onMouseLeave={()  => setShow("")} onMouseEnter={() => setShow("X")} className={` ${selectedGroup == data.data.groupId ? "bg-[#171e35]" : null} relative rounded-lg py-2 flex items-center`}>
-          <p onClick={() => deleteGroupChat(data.id)} className="absolute left-2 font-thin hover:bg-[#2b3e6e] p-1 text-sm cursor-pointer rounded-md">{show}</p>
-          <p className="font-light cursor-pointer border-r border-[#20293a] pl-8 pr-8">{data.data.name.slice(0,10)} </p>
+<div className="max-w-screen-md overflow-x-auto flex">
+  {getMyGroup.map((data, index) => (
+    <div
+      onClick={() => fetchDataTwo(data.data.groupId, data.data.color, data.data.group, data.data.id, data.data.owner)}
+      key={index}
+      onMouseLeave={() => setShow("")}
+      onMouseEnter={() => setShow("X")}
+      className={` ${selectedGroup == data.data.groupId ? "bg-[#171e35]" : null} ${selectedGroup == data.data.groupId && data.data.group ? "bg-[#2e3d6b]" : null} ${data.data.group ? "border" : null} border-blue-300 relative rounded-lg py-2 flex items-center`}
+    >
+      <p
+        onClick={() => deleteGroupChat(data.id)}
+        className="absolute left-2 font-thin hover:bg-[#2b3e6e] p-1 text-sm cursor-pointer rounded-md"
+      >
+        {show}
+      </p>
+      <p className="font-light cursor-pointer border-r border-[#20293a] pl-8 pr-8">
+        {
+          data.data.group ? (
+            <p className="text-blue-300">$ {data.data.link}</p>
+          ) : (
+            <>
+            {data.data.name.slice(0, 10)}{" "}
+            </>
+          )
+        }
         
-        </div>
-        })
-      }
+      </p>
+    </div>
+  ))}
+</div>
+
         </div>
         
         
@@ -817,7 +928,7 @@ let prevTimestamp = 0;
 
     <div className="flex h-96 flex-col flex-grow overflow-y-auto justify-center items-center" >
       {
-        getMessages.length == 0 ? (
+        getMessages.length == 0 && trueOwner ? (
           <p className="ml-0 my-4 text-[#2f3f5c] text-center">Talk to this address before adding to your group chat</p>
         ) : (
 <p className="ml-10 my-4 text-[#2f3f5c]"></p>
@@ -945,4 +1056,4 @@ let prevTimestamp = 0;
   )
 }
 
-export default account
+export default Account
