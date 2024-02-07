@@ -6,12 +6,16 @@ import Comment from "../components/Comment"
 import Pro from '../components/Pro';
 import { db } from '../firebase';
 import styles from '../styles/Home.module.css'
+import { ethers } from 'ethers';
+const { JsonRpcProvider } = require("ethers");
+import Tancy from "./Tancy.json";
 
 function Account() {
     const [modalVisible, setModalVisible] = useState(false);
     const [modalVisibleTwo, setModalVisibleTwo] = useState(false);
     const [modalVisibleThree, setModalVisibleThree] = useState(false);
     const [modalVisibleFour, setModalVisibleFour] = useState(false);
+    const [modalVisibleFive, setModalVisibleFive] = useState(false);
     const [selected, setSelected] = useState("");
     const [selectedTwo, setSelectedTwo] = useState("");
     const [selectedThree, setSelectedThree] = useState("");
@@ -201,7 +205,7 @@ function Account() {
       setSelectedGroup(docId);
     }
 
-    const addGroupTwo = async (id) => {
+    const addGroupTwoo = async (id) => {
       const randomColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
 
       const firstDocRef = await addDoc(collection(db, "accounts", id, "myGroups"), {
@@ -223,6 +227,194 @@ function Account() {
 
       
     }
+
+
+
+
+
+
+    const addressss = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+
+    const providerrr = new ethers.JsonRpcProvider();
+    const contractAward = new ethers.Contract(addressss, Tancy.abi, providerrr); 
+
+    const [ifDeposited, setIfDeposited] = useState("");
+
+    useEffect(() => {
+      const getBalance = async () => {
+        // Check if accounts is not null and has at least one element
+        if (accounts && accounts.length > 0) {
+          try {
+            const haha = await contractAward.deposited(accounts[0]);
+            setIfDeposited(haha);
+          } catch (error) {
+            console.error("Error:", error);
+          }
+        }
+      };
+    
+      getBalance();
+    }, [accounts, contractAward]);  // Include contractAward as a dependency
+    
+    
+
+
+    async function addGroupTwo(id) {
+      if (window.ethereum) {
+        const account = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+    
+        setAccounts(account);
+    
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(
+          addressss,
+          Tancy.abi,
+          signer
+        );
+    
+        try {
+
+          if (ifDeposited) {
+            const networkId = await window.ethereum.request({ method: "net_version" });
+          console.log(networkId);
+    
+          // Check if the connected network is Optimism
+          if (networkId == 31337) {
+            const transaction = await contract.addToGroupNew(id);
+            const receipt = await transaction.wait(); // Wait for the transaction to be mined
+    
+            console.log("Transaction confirmed:", receipt.hash);
+    
+            if (receipt && receipt.hash) {
+              const randomColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
+    
+              const firstDocRef = await addDoc(collection(db, "accounts", id, "myGroups"), {
+                name: id,
+                groupId: getMyGroupOne[0].data.groupId,
+                color: randomColor,
+                group: true,
+                id: getMyGroupOne[0].data.id,
+                link: getMyGroupOne[0].data.link
+              });
+    
+              const groupId = firstDocRef.id;
+    
+              addDoc(collection(db, "accounts", accounts[0], "team"), {
+                address: id,
+                color: randomColor,
+                groupId: groupId
+              });
+            } else {
+              alert("Transaction confirmation failed");
+            }
+          } else {
+            // Alert the user to switch to the Optimism network
+            alert("Switch to Goerli network in MetaMask to use this feature.");
+          }
+          } else {
+            setModalVisibleFive(true);
+          }
+          
+        } catch (err) {
+          console.log("error: ", err);
+        }
+      }
+    }
+
+
+
+    async function deposit() {
+      if (window.ethereum) {
+        const account = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+    
+        setAccounts(account);
+    
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(
+          addressss,
+          Tancy.abi,
+          signer
+        );
+    
+        try {
+          const networkId = await window.ethereum.request({ method: "net_version" });
+          console.log(networkId);
+    
+          // Check if the connected network is Optimism
+          if (networkId == 31337) {
+            const transaction = await contract.deposit();
+            const receipt = await transaction.wait(); // Wait for the transaction to be mined
+    
+            console.log("Transaction confirmed:", receipt.hash);
+    
+            if (receipt && receipt.hash) {
+              setModalVisibleFive(false);
+            } else {
+              alert("Transaction confirmation failed");
+            }
+          } else {
+            // Alert the user to switch to the Optimism network
+            alert("Switch to Goerli network in MetaMask to use this feature.");
+          }
+        } catch (err) {
+          console.log("error: ", err);
+        }
+      }
+    }
+
+
+
+    async function withdraw() {
+      if (window.ethereum) {
+        const account = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+    
+        setAccounts(account);
+    
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(
+          addressss,
+          Tancy.abi,
+          signer
+        );
+    
+        try {
+          const networkId = await window.ethereum.request({ method: "net_version" });
+          console.log(networkId);
+    
+          // Check if the connected network is Optimism
+          if (networkId == 31337) {
+            const transaction = await contract.withdraw(projectInfo.owner);
+            const receipt = await transaction.wait(); // Wait for the transaction to be mined
+    
+            console.log("Transaction confirmed:", receipt.hash);
+    
+            if (receipt && receipt.hash) {
+              alert("Successful withdraw")
+            } else {
+              alert("Transaction confirmation failed");
+            }
+          } else {
+            // Alert the user to switch to the Optimism network
+            alert("Switch to Goerli network in MetaMask to use this feature.");
+          }
+        } catch (err) {
+          console.log("error: ", err);
+        }
+      }
+    }
+    
+    
+
+
                                     
     const researchAll = ["Web3", "Blockchain", "Analysis"];
     const ideasAll = ["Marketing", "Social", "Functions"];
@@ -499,6 +691,7 @@ function Account() {
     const sendMessage = () => {
       if (getMyGroupOne.length > 0) {
         const owner = getMyGroupOne[0]?.data?.owner;
+        console.log("here", owner)
         if (owner && accounts[0].toUpperCase() === owner.toUpperCase()) {
           addDoc(collection(db, "allChats", selectedGroup, "messages"), {
             message: messageInput,
@@ -554,10 +747,55 @@ let prevTimestamp = 0;
     }
 
 
-    const remoPersonTeam = () => {
+    const remoPersonTeamm = () => {
       deleteDoc(doc(db, "accounts", getPersonId, "myGroups", deleteGroupId));
       deleteDoc(doc(db, "accounts", accounts[0], "team", teamId));
       setModalVisibleTwo(false);
+    }
+
+
+    async function remoPersonTeam() {
+      if (window.ethereum) {
+        const account = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+    
+        setAccounts(account);
+    
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(
+          addressss,
+          Tancy.abi,
+          signer
+        );
+    
+        try {
+          const networkId = await window.ethereum.request({ method: "net_version" });
+          console.log(networkId);
+    
+          // Check if the connected network is Optimism
+          if (networkId == 31337) {
+            const transaction = await contract.removeFromGroup(getPersonId);
+            const receipt = await transaction.wait(); // Wait for the transaction to be mined
+    
+            console.log("Transaction confirmed:", receipt.hash);
+    
+            if (receipt && receipt.hash) {
+              deleteDoc(doc(db, "accounts", getPersonId, "myGroups", deleteGroupId));
+              deleteDoc(doc(db, "accounts", accounts[0], "team", teamId));
+              setModalVisibleTwo(false);
+            } else {
+              alert("Transaction confirmation failed");
+            }
+          } else {
+            // Alert the user to switch to the Optimism network
+            alert("Switch to Goerli network in MetaMask to use this feature.");
+          }
+        } catch (err) {
+          console.log("error: ", err);
+        }
+      }
     }
 
 
@@ -599,6 +837,19 @@ let prevTimestamp = 0;
   
     return (
         <div className={styles.acc}>
+          {modalVisibleFive && (
+          <div className={styles.modaloverlay} onClick={() => setModalVisibleFive(false)}>
+            <div className={styles.modalcontentThree}>
+              <div onClick={(e) => e.stopPropagation() /* prevent closing when clicking on the content */}>
+                <div className="flex w-full flex-col px-10 justify-center items-center">
+                  <img src="https://i.postimg.cc/QNJmYdRq/8r-LS2m-Logo-Makr.png" className="w-32" />
+                  <p className="text-center w-2/3 mt-8 text-[#3f5780]">You have to deposit the reward before adding people to your group.</p>
+                  <div onClick={deposit} className="mt-6 bg-blue-700 p-3 rounded-lg text-sm hover:bg-blue-600 cursor-pointer px-8">Deposit</div>
+                </div>
+              </div>
+            </div>
+          </div>
+            )}
            {modalVisible && (
           <div className={styles.modaloverlay} onClick={closeModal}>
             <div className={styles.modalcontent}>
@@ -766,7 +1017,7 @@ let prevTimestamp = 0;
                 info ? (
                   <>
                   <div className="flex items-center">
-              <p onClick={() => setHelp("Your audience")} className={`mx-4 ${help == "Your audience" ? "text-blue-500" : "text-[#2c3f6e]"} ${help == "Your audience" ? "border-blue-500" : "border-[#111729]"}   border-b cursor-pointer ${help == "Your audience" ? "hover:text-blue-500" : "hover:text-[#3c5699]"} `}>Campaign ideas</p>
+              <p className={`mx-4 ${help == "Your audience" ? "text-blue-500" : "text-[#2c3f6e]"} ${help == "Your audience" ? "border-blue-500" : "border-[#111729]"}   border-b cursor-pointer ${help == "Your audience" ? "hover:text-blue-500" : "hover:text-[#3c5699]"} `}>Campaign ideas</p>
               {/*<p onClick={() => setHelp("Consultant")} className={`mx-4 ${help == "Consultant" ? "text-blue-500" : "text-[#2c3f6e]"} ${help == "Consultant" ? "border-blue-500" : "border-[#111729]"}   border-b cursor-pointer ${help == "Consultant" ? "hover:text-blue-500" : "hover:text-[#3c5699]"}`}>Consultant</p>*/}
               </div>
                   {
@@ -823,16 +1074,17 @@ let prevTimestamp = 0;
                     <p className="text-gray-300 text-sm mt-1">{projectInfo.reward} eth</p>
                     <p className="text-blue-300 font-bold text-lg mt-8">Description & Goals</p>
                     <p className="border-b pb-6 border-[#253149] text-gray-300 text-sm mt-1">{projectInfo.goal}</p>
-                    <div className="flex items-center mt-5 flex-wrap">
+
+                    <div className="flex items-center mt-5 flex-wrap border-b border-[#253149]">
             {
                   projectInfo.resarch && (
-                    <div className="text-[#E93378] mb-3 border-[#E93378] border p-2 px-5 rounded-full text-sm mr-4">Research</div>
+                    <div className="text-[#E93378] mb-5 border-[#E93378] border p-2 px-5 rounded-full text-sm mr-4">Research</div>
                   ) 
                 }
                 
                 {
                   projectInfo.ideas ? (
-                    <div className="text-[#3387E9] mb-3 border-[#3387E9] border p-2 px-5 rounded-full mr-4 text-sm">Ideas</div>
+                    <div className="text-[#3387E9] mb-5 border-[#3387E9] border p-2 px-5 rounded-full mr-4 text-sm">Ideas</div>
                   ) : (
                     null
                   )
@@ -840,12 +1092,13 @@ let prevTimestamp = 0;
 
 {
                   projectInfo.content ? (
-                    <div className="text-[#33a6e9] mb-3 border-[#33a6e9] border p-2 px-5 rounded-full text-sm">Content</div>
+                    <div className="text-[#33a6e9] mb-5 border-[#33a6e9] border p-2 px-5 rounded-full text-sm">Content</div>
                   ) : (
                     null
                   )
                 }
             </div>
+            <div onClick={withdraw} className="flex cursor-pointer bg-[#086fac] p-2 rounded-xl hover:bg-[#254149] mr-0 justify-center items-center mt-6">Withdraw</div>
                   </div>
                 )
               }
